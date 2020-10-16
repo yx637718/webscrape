@@ -1,6 +1,7 @@
 library(jsonlite)
 library(dplyr)
 
+####topic page
 baseurl <- "https://www.zhihu.com/api/v4/topics/20049156/feeds/top_activity?include=data%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Danswer%29%5D.target.content%2Crelationship.is_authorized%2Cis_author%2Cvoting%2Cis_thanked%2Cis_nothelp%3Bdata%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Danswer%29%5D.target.is_normal%2Ccomment_count%2Cvoteup_count%2Ccontent%2Crelevant_info%2Cexcerpt.author.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Darticle%29%5D.target.content%2Cvoteup_count%2Ccomment_count%2Cvoting%2Cauthor.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Dpeople%29%5D.target.answer_count%2Carticles_count%2Cgender%2Cfollower_count%2Cis_followed%2Cis_following%2Cbadge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Danswer%29%5D.target.annotation_detail%2Ccontent%2Chermes_label%2Cis_labeled%2Crelationship.is_authorized%2Cis_author%2Cvoting%2Cis_thanked%2Cis_nothelp%2Canswer_type%3Bdata%5B%3F%28target.type%3Danswer%29%5D.target.author.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Danswer%29%5D.target.paid_info%3Bdata%5B%3F%28target.type%3Darticle%29%5D.target.annotation_detail%2Ccontent%2Chermes_label%2Cis_labeled%2Cauthor.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Dquestion%29%5D.target.annotation_detail%2Ccomment_count%3B&limit=10&after_id="
 
   title <- "A"
@@ -23,3 +24,104 @@ baseurl <- "https://www.zhihu.com/api/v4/topics/20049156/feeds/top_activity?incl
   #combine
   finalout <- cbind(questions,links) 
   finalout1 <- finalout %>% distinct()
+  
+#wait for answer page
+  baseurl <- "https://www.zhihu.com/api/v4/topics/20049156/feeds/top_question?include=data%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Danswer%29%5D.target.content%2Crelationship.is_authorized%2Cis_author%2Cvoting%2Cis_thanked%2Cis_nothelp%3Bdata%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Danswer%29%5D.target.is_normal%2Ccomment_count%2Cvoteup_count%2Ccontent%2Crelevant_info%2Cexcerpt.author.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Darticle%29%5D.target.content%2Cvoteup_count%2Ccomment_count%2Cvoting%2Cauthor.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Dpeople%29%5D.target.answer_count%2Carticles_count%2Cgender%2Cfollower_count%2Cis_followed%2Cis_following%2Cbadge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Danswer%29%5D.target.annotation_detail%2Ccontent%2Chermes_label%2Cis_labeled%2Crelationship.is_authorized%2Cis_author%2Cvoting%2Cis_thanked%2Cis_nothelp%2Canswer_type%3Bdata%5B%3F%28target.type%3Danswer%29%5D.target.author.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Danswer%29%5D.target.paid_info%3Bdata%5B%3F%28target.type%3Darticle%29%5D.target.annotation_detail%2Ccontent%2Chermes_label%2Cis_labeled%2Cauthor.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Dquestion%29%5D.target.annotation_detail%2Ccomment_count%3B&limit=10&offset="
+  title <- "A"
+  questions <- data.table()
+  links <- data.table()
+  i <- 0
+  while (!is.null(title)) {
+    j <- i
+    mydata <- fromJSON(paste0(baseurl, j, "0"), flatten=TRUE)
+    message("Retrieving page ", i)
+    #question title
+    questions <- rbind(questions, as.data.frame(mydata[["data"]][["target.title"]]))
+    #question links
+    # questionURL <- gsub("api/v4/questions","question",mydata[["data"]][["target.question.url"]])
+    # links <- rbind(links,as.data.frame(questionURL))
+    title <- mydata[["data"]][["target.title"]]
+    i <- i+1
+  }
+  
+  check <- questions[,`mydata[["data"]][["target.title"]]`=="如何以［父亲想让我替姐姐进宫］为开头写一个故事？"]
+  grep("父亲想让我替姐姐进宫",questions)
+  ?grep
+  #combine
+  finalout <- cbind(questions,links) 
+  finalout1 <- finalout %>% distinct() 
+  
+#essense answer
+  baseurl <- "https://www.zhihu.com/api/v4/topics/20049156/feeds/essence?include=data%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Danswer%29%5D.target.content%2Crelationship.is_authorized%2Cis_author%2Cvoting%2Cis_thanked%2Cis_nothelp%3Bdata%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Danswer%29%5D.target.is_normal%2Ccomment_count%2Cvoteup_count%2Ccontent%2Crelevant_info%2Cexcerpt.author.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Darticle%29%5D.target.content%2Cvoteup_count%2Ccomment_count%2Cvoting%2Cauthor.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Dtopic_sticky_module%29%5D.target.data%5B%3F%28target.type%3Dpeople%29%5D.target.answer_count%2Carticles_count%2Cgender%2Cfollower_count%2Cis_followed%2Cis_following%2Cbadge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Danswer%29%5D.target.annotation_detail%2Ccontent%2Chermes_label%2Cis_labeled%2Crelationship.is_authorized%2Cis_author%2Cvoting%2Cis_thanked%2Cis_nothelp%2Canswer_type%3Bdata%5B%3F%28target.type%3Danswer%29%5D.target.author.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Danswer%29%5D.target.paid_info%3Bdata%5B%3F%28target.type%3Darticle%29%5D.target.annotation_detail%2Ccontent%2Chermes_label%2Cis_labeled%2Cauthor.badge%5B%3F%28type%3Dbest_answerer%29%5D.topics%3Bdata%5B%3F%28target.type%3Dquestion%29%5D.target.annotation_detail%2Ccomment_count%3B&limit=10&offset="
+  title <- "A"
+  questions <- data.table()
+  links <- data.table()
+  i <- 0
+  while (!is.null(title)) {
+    j <- i
+    mydata <- fromJSON(paste0(baseurl, j, "0"), flatten=TRUE)
+    message("Retrieving page ", i)
+    #question title
+    title <- mydata[["data"]][["target.question.title"]]
+    questions <- rbind(questions, as.data.frame(title))
+    #question links    
+    questionID <- mydata[["data"]][["target.question.id"]]
+    answerID <- mydata[["data"]][["target.id"]]
+    questionURL <- purrr::map2(questionID, answerID, ~ paste0("https://www.zhihu.com/question/",.x,"/answer/",.y))
+    questionURL <- do.call(rbind,questionURL)
+    links <- rbind(links, questionURL)
+    i <- i+1
+  }
+  
+ 
+  #combine
+  finalout <- cbind(questions,links) 
+  finalout1 <- finalout %>% distinct() %>% arrange(title) %>% filter(!is.na(title) , !grepl("怎样写好一篇公众号文章|在这个具体条件下|为什么小孩子喜欢吃肉|为什么我看完一本书或者一篇文章之后", title))   
+  grepl("开头|故事", finalout1$title)
+  ?grepl
+#search page (not working)
+  baseurl <- "https://www.zhihu.com/api/v4/search_v3?t=general&q=%E5%BC%80%E5%A4%B4%E4%B8%80%E4%B8%AA%E6%95%85%E4%BA%8B&correction=1&offset="
+  baseurl2 <- "2&limit=20&lc_idx="
+  baseurl3 <- "2&show_all_topics=0&search_hash_id=7adf719d7bd110647bdf4e4d50652229&vertical_info=0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C1"
+  
+  title <- "A"
+  questions <- data.table()
+  links <- data.table()
+  i <- 0
+  while (i==0) {
+    j <- 2*(i+1)
+    mydata <- fromJSON(paste0(baseurl,j,baseurl2,j,baseurl3), flatten=TRUE)
+    message("Retrieving page ", i)
+    #question title
+    # questions <- rbind(questions, as.data.frame(mydata[["data"]][["target.question.title"]]))
+    #question links
+    # questionURL <- gsub("api/v4/questions","question",mydata[["data"]][["target.question.url"]])
+    # links <- rbind(links,as.data.frame(questionURL))
+    # title <- mydata[["data"]][["target.question.title"]]
+    i <- i+1
+  }
+
+  #combine
+  finalout <- cbind(questions,links) 
+  finalout1 <- finalout %>% distinct()"
+  title <- "A"
+  questions <- data.table()
+  links <- data.table()
+  i <- 0
+  while (!is.null(title)) {
+    j <- 10*(i)
+    mydata <- fromJSON(paste0(baseurl, j, ".00000"), flatten=TRUE)
+    message("Retrieving page ", i)
+    #question title
+    questions <- rbind(questions, as.data.frame(mydata[["data"]][["target.question.title"]]))
+    #question links
+    questionURL <- gsub("api/v4/questions","question",mydata[["data"]][["target.question.url"]])
+    links <- rbind(links,as.data.frame(questionURL))
+    title <- mydata[["data"]][["target.question.title"]]
+    i <- i+1
+  }
+  
+  #combine
+  finalout <- cbind(questions,links) 
+  finalout1 <- finalout %>% distinct()
+
